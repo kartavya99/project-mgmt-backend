@@ -1,17 +1,18 @@
 require("dotenv").config({ path: ".env" });
 const express = require("express");
+const db = require("./config/connection");
 const colors = require("colors");
-const db = require("./config/db");
 const { ApolloServer } = require("apollo-server-express");
+const {
+  ApolloServerPluginLandingPageLocalDefault,
+} = require("apollo-server-core");
 const { typeDefs, resolvers } = require("./schemas");
 
-const port = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3001;
 const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  csrfPrevention: true,
-  cache: "bounded",
 });
 
 app.use(express.urlencoded({ extended: false }));
@@ -19,20 +20,20 @@ app.use(express.json());
 
 const startApolloServer = async (typeDefs, resolvers) => {
   await server.start();
+  server.applyMiddleware({ app });
+
   db.once("open", () => {
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`.yellow.bold);
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`.brightBlue);
       console.log(
-        `USE GraphQL at http://localhost:${port}${server.graphqlPath}`.yellow
-          .bold.underline
+        `USE GraphQL at http://localhost:${PORT}${server.graphqlPath}`
+          .brightMagenta
       );
-    }); // Add closing parenthesis here
+    });
+  });
+  db.on("error", (err) => {
+    console.log(err);
   });
 };
 
 startApolloServer(typeDefs, resolvers);
-
-// db();
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`.yellow.bold);
-// });
