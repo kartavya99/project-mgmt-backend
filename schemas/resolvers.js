@@ -2,16 +2,20 @@ const { Client, Project } = require("../models");
 
 const resolvers = {
   Query: {
+    fetchAllClients: async () => {
+      return await Client.find();
+    },
+
     fetchClient: async (parent, { clientId }) => {
       return await Client.findById({ _id: clientId });
     },
 
     fetchAllProjects: async () => {
-      return await Project.find({});
+      return await Project.find().populate("clientId");
     },
 
     fetchProject: async (parent, { projectId }) => {
-      return await Project.findById({ _id: projectId });
+      return await Project.findById({ _id: projectId }).populate("clientId");
     },
   },
 
@@ -26,11 +30,22 @@ const resolvers = {
       return client;
     },
     createProject: async (parent, args) => {
-      const { name, description, status } = args;
-      const project = await Project.create({ name, description, status });
-      await Client.findByIdAndUpdate(args.clientId, {
-        $push: { projects: project._id },
+      const { name, description, status, clientId } = args;
+      const project = await Project.create({
+        name,
+        description,
+        status,
+        clientId,
       });
+      await Client.findByIdAndUpdate(
+        {
+          _id: clientId,
+        },
+        {
+          $push: { projects: project._id },
+        }
+      );
+
       return project;
     },
     deleteProject: async (parent, { projectId }) => {

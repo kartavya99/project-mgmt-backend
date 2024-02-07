@@ -19,10 +19,12 @@ const typeDefs = gql`
     name: String!
     description: String!
     status: Status!
+    clientId: Client
   }
 
   type Query {
     fetchClient(clientId: ID!): Client
+    fetchAllClients: [Client]
     fetchAllProjects: [Project]
     fetchProject(projectId: ID!): Project
   }
@@ -30,7 +32,12 @@ const typeDefs = gql`
   type Mutation {
     createClient(name: String!, email: String!, phone: String!): Client
     deleteClient(clientId: ID!): Client
-    createProject(name: String!, description: String!, status: Status!): Project
+    createProject(
+      name: String!
+      description: String!
+      status: Status!
+      clientId: ID!
+    ): Project
     deleteProject(projectId: ID!): Project
     updateProject(projectId: ID!, status: Status!): Project
   }
