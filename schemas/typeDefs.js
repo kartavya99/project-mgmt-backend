@@ -9,13 +9,13 @@ const typeDefs = gql`
   }
 
   enum Status {
-    NOT_STARTED
-    IN_PROGRESS
-    COMPLETED
+    Planning
+    Progress
+    Completed
   }
 
   type Project {
-    _id: ID
+    _id: ID!
     name: String!
     description: String!
     status: Status!
@@ -25,6 +25,14 @@ const typeDefs = gql`
     fetchClient(clientId: ID!): Client
     fetchAllProjects: [Project]
     fetchProject(projectId: ID!): Project
+  }
+
+  type Mutation {
+    createClient(name: String!, email: String!, phone: String!): Client
+    deleteClient(clientId: ID!): Client
+    createProject(name: String!, description: String!, status: Status!): Project
+    deleteProject(projectId: ID!): Project
+    updateProject(projectId: ID!, status: Status!): Project
   }
 `;
 
