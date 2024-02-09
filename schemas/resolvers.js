@@ -25,10 +25,17 @@ const resolvers = {
       const client = await Client.create({ name, email, phone });
       return client;
     },
+
     deleteClient: async (parent, { clientId }) => {
+      const projects = await Project.find({ clientId });
+      projects.forEach(async (project) => {
+        await Project.findByIdAndDelete({ _id: project._id });
+      });
+
       const client = await Client.findByIdAndDelete({ _id: clientId });
       return client;
     },
+
     createProject: async (parent, args) => {
       const { name, description, status, clientId } = args;
       const project = await Project.create({
