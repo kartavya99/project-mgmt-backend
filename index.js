@@ -1,4 +1,5 @@
 require("dotenv").config({ path: ".env" });
+require("dotenv").config({ path: ".env" });
 const express = require("express");
 const db = require("./config/connection");
 const colors = require("colors");
@@ -7,6 +8,7 @@ const {
   ApolloServerPluginLandingPageLocalDefault,
 } = require("apollo-server-core");
 const { typeDefs, resolvers } = require("./schemas");
+const path = require("path");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -17,6 +19,9 @@ const server = new ApolloServer({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+app.use(express.static(path.resolve(__dirname, "build")));
+app.get("*", (req, res) => res.sendFile(path.resolve("build", "index.html")));
 
 const startApolloServer = async (typeDefs, resolvers) => {
   await server.start();
